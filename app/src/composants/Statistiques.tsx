@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import type { Prestation } from "../types";
 import { MOIS_FR, euros, montant } from "../utilitaires";
 
+const MOIS_COURT = ["jan", "fév", "mar", "avr", "mai", "juin", "juil", "aoû", "sep", "oct", "nov", "déc"];
+
 type Props = { prestations: Prestation[] };
 
 type CumulMois = {
@@ -111,11 +113,34 @@ export default function Statistiques({ prestations }: Props) {
             );
           })}
         </div>
+        <ul className="ca-par-mois">
+          {parMois.map(([cle, valeur]) => {
+            const [annee, mois] = cle.split("-");
+            return (
+              <li key={cle}>
+                <button
+                  type="button"
+                  className={moisActif === cle ? "actif" : undefined}
+                  onClick={() => setMoisActif(moisActif === cle ? null : cle)}
+                >
+                  <strong>
+                    {MOIS_COURT[Number.parseInt(mois, 10) - 1]} {annee.slice(2)}
+                  </strong>
+                  <span>{euros(valeur.total)}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
         {detail && (
           <dl className="detail-mois">
             <div>
               <dt>Mois</dt>
               <dd>{etiquetteMois(detail[0])}</dd>
+            </div>
+            <div>
+              <dt>CA globale</dt>
+              <dd>{euros(detail[1].total)}</dd>
             </div>
             <div>
               <dt>CA déclaré</dt>
