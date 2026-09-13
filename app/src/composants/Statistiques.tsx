@@ -1,17 +1,32 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { Prestation } from "../types";
 import { MOIS_FR, euros, montant } from "../utilitaires";
 
 type Props = { prestations: Prestation[] };
 
+type CumulMois = {
+  total: number;
+  declare: number;
+  nonDeclare: number;
+  nombre: number;
+};
+
 export default function Statistiques({ prestations }: Props) {
+  const [moisActif, setMoisActif] = useState<string | null>(null);
+
   const parMois = useMemo(() => {
-    const cumul = new Map<string, { total: number; nombre: number }>();
+    const cumul = new Map<string, CumulMois>();
     for (const p of prestations) {
       const cle = p.date_prestation.slice(0, 7);
       if (!cle) continue;
-      const actuel = cumul.get(cle) ?? { total: 0, nombre: 0 };
-      cumul.set(cle, { total: actuel.total + montant(p.prix_paye), nombre: actuel.nombre + 1 });
+      const actuel = cumul.get(cle) ?? { total: 0, declare: 0, nonDeclare: 0, nombre: 0 };
+      const prix = montant(p.prix_paye);
+      cumul.set(cle, {
+        total: actuel.total + prix,
+        declare: actuel.declare + (p.declaree === "oui" ? prix : 0),
+        nonDeclare: actuel.nonDeclare + (p.declaree === "non" ? prix : 0),
+        nombre: actuel.nombre + 1,
+      });
     }
     return [...cumul.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [prestations]);
@@ -49,6 +64,7 @@ export default function Statistiques({ prestations }: Props) {
   const maximumMensuel = Math.max(1, ...parMois.map(([, v]) => v.total));
   const total = parAnnee.reduce((somme, [, v]) => somme + v.total, 0);
   const nombre = parAnnee.reduce((somme, [, v]) => somme + v.nombre, 0);
+  const detail = moisActif ? parMois.find(([cle]) => cle === moisActif) : undefined;
 
   return (
     <div className="statistiques">
@@ -73,26 +89,48 @@ export default function Statistiques({ prestations }: Props) {
 
       <section className="carte">
         <h3>Chiffre d'affaires par mois</h3>
-        <div className="graphique" role="img" aria-label="Histogramme du chiffre d'affaires mensuel">
+        <div className="graphique" role="list" aria-label="Histogramme du chiffre d'affaires mensuel">
           {parMois.map(([cle, valeur]) => {
             const [annee, mois] = cle.split("-");
             const hauteur = (valeur.total / maximumMensuel) * 100;
             return (
-              <div key={cle} className="barre-colonne">
-                <div
+              <button
+                key={cle}
+                type="button"
+                className={moisActif === cle ? "barre-colonne active" : "barre-colonne"}
+                onClick={() => setMoisActif(moisActif === cle ? null : cle)}
+                aria-pressed={moisActif === cle}
+                aria-label={`${MOIS_FR[Number.parseInt(mois, 10) - 1]} ${annee}`}
+              >
+                <span
                   className="barre"
                   style={{ height: `${Math.max(hauteur, 1)}%` }}
-                  title={`${MOIS_FR[Number.parseInt(mois, 10) - 1]} ${annee} : ${euros(valeur.total)} pour ${valeur.nombre} prestations`}
                 />
                 {mois === "01" && <span className="barre-annee">{annee}</span>}
-              </div>
+              </button>
             );
           })}
         </div>
-        <p className="legende">
-          Chaque barre représente un mois, de {etiquetteMois(parMois[0]?.[0])} à{" "}
-          {etiquetteMois(parMois[parMois.length - 1]?.[0])}. Survolez une barre pour le détail.
-        </p>
+        {detail && (
+          <dl className="detail-mois">
+            <div>
+              <dt>Mois</dt>
+              <dd>{etiquetteMois(detail[0])}</dd>
+            </div>
+            <div>
+              <dt>CA déclaré</dt>
+              <dd>{euros(detail[1].declare)}</dd>
+            </div>
+            <div>
+              <dt>CA non déclaré</dt>
+              <dd>{euros(detail[1].nonDeclare)}</dd>
+            </div>
+            <div>
+              <dt>Prestations</dt>
+              <dd>{detail[1].nombre}</dd>
+            </div>
+          </dl>
+        )}
       </section>
 
       <div className="colonnes">
@@ -118,10 +156,6 @@ export default function Statistiques({ prestations }: Props) {
               ))}
             </tbody>
           </table>
-          <p className="legende">
-            L'année 2022 ne couvre qu'un mois et 2026 s'arrête en septembre : ces deux lignes ne
-            sont pas comparables aux années complètes.
-          </p>
         </section>
 
         <section className="carte">

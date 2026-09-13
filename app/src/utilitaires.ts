@@ -63,6 +63,13 @@ export function appliquerCorrection(
 }
 
 /** Sans accents ni majuscules : la recherche doit trouver « Tuléar » en tapant « tulear ». */
+export function normaliserDeclaration(valeur: string): string {
+  const cle = aplatir(valeur).trim();
+  if (cle === "oui" || cle === "o" || cle === "yes") return "oui";
+  if (cle === "non" || cle === "n" || cle === "no") return "non";
+  return "";
+}
+
 export function aplatir(texte: string): string {
   return texte
     .normalize("NFD")
@@ -122,13 +129,13 @@ export function trier(
 const COLONNES_EXPORT: (keyof Prestation)[] = [
   "date_prestation", "prenom", "nom", "nom_animal", "race_animal", "adresse",
   "telephone", "email", "type_prestation", "prix_paye", "mode_paiement", "commentaire",
-  "id", "client_id", "a_revoir",
+  "declaree", "id", "client_id", "a_revoir",
 ];
 
 const ENTETES_EXPORT = [
   "Date", "Prénom", "Nom", "Animal", "Race", "Adresse", "Téléphone",
   "Email", "Prestation", "Prix payé", "Mode de paiement", "Commentaire",
-  "Id", "Client", "À revoir",
+  "Déclaré", "Id", "Client", "À revoir",
 ];
 
 export const DESTINATAIRE_CSV = "alexane.duriez06@gmail.com";
@@ -153,6 +160,9 @@ const ALIAS_COLONNES: Record<string, keyof Prestation> = {
   mode_de_paiement: "mode_paiement",
   mode_paiement: "mode_paiement",
   commentaire: "commentaire",
+  declare: "declaree",
+  declaree: "declaree",
+  declaration: "declaree",
   id: "id",
   client: "client_id",
   client_id: "client_id",
@@ -232,6 +242,7 @@ export function analyserCsv(texte: string): Prestation[] {
       prix_paye: ligne.prix_paye ?? "",
       mode_paiement: ligne.mode_paiement ?? "",
       commentaire: ligne.commentaire ?? "",
+      declaree: normaliserDeclaration(ligne.declaree ?? ""),
       client_id: ligne.client_id ?? "",
       complete_depuis_historique: "",
       prix_brut: ligne.prix_paye ?? "",

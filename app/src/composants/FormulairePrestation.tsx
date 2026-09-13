@@ -25,6 +25,7 @@ function vide(id: number): Prestation {
     prix_paye: "",
     mode_paiement: "Espèces",
     commentaire: "",
+    declaree: "",
     client_id: "",
     complete_depuis_historique: "",
     prix_brut: "",
@@ -108,6 +109,10 @@ export default function FormulairePrestation({
     const prix = valeurs.prix_paye.replace(",", ".");
     if (prix && !Number.isFinite(Number.parseFloat(prix))) {
       setErreur("Le prix doit être un nombre, par exemple 55 ou 55.50.");
+      return;
+    }
+    if (!existante && valeurs.declaree !== "oui" && valeurs.declaree !== "non") {
+      setErreur("Indiquez si la prestation est déclarée ou non.");
       return;
     }
     onValider({ ...valeurs, prix_paye: prix });
@@ -214,6 +219,32 @@ export default function FormulairePrestation({
               ))}
             </datalist>
           </Champ>
+
+          <fieldset className="champ large choix-declaration">
+            <legend>Déclaration{!existante && <em aria-hidden="true"> *</em>}</legend>
+            <div className="choix-declaration-options">
+              <label className={valeurs.declaree === "oui" ? "actif" : undefined}>
+                <input
+                  type="radio"
+                  name="declaree"
+                  value="oui"
+                  checked={valeurs.declaree === "oui"}
+                  onChange={() => modifier("declaree", "oui")}
+                />
+                Déclaré
+              </label>
+              <label className={valeurs.declaree === "non" ? "actif" : undefined}>
+                <input
+                  type="radio"
+                  name="declaree"
+                  value="non"
+                  checked={valeurs.declaree === "non"}
+                  onChange={() => modifier("declaree", "non")}
+                />
+                Non déclaré
+              </label>
+            </div>
+          </fieldset>
 
           <Champ libelle="Commentaire" large>
             <textarea

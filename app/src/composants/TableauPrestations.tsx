@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
 import type { Prestation } from "../types";
 import { LIBELLES_DRAPEAUX } from "../types";
-import { dateLisible, euros, montant, valeursDistinctes } from "../utilitaires";
+import { dateLisible, euros, montant, normaliserDeclaration, valeursDistinctes } from "../utilitaires";
 import CelluleEditable from "./CelluleEditable";
 
 type Props = {
@@ -27,6 +27,7 @@ const COLONNES: { champ: keyof Prestation; libelle: string; classe?: string }[] 
   { champ: "type_prestation", libelle: "Prestation" },
   { champ: "prix_paye", libelle: "Prix", classe: "cellule-nombre" },
   { champ: "mode_paiement", libelle: "Paiement" },
+  { champ: "declaree", libelle: "Déclaré" },
   { champ: "commentaire", libelle: "Commentaire", classe: "cellule-large" },
 ];
 
@@ -156,6 +157,17 @@ export default function TableauPrestations({
                       suggestions={paiements}
                       ariaLabel="mode de paiement"
                       onChange={(valeur) => onModifierChamp(p.id, "mode_paiement", valeur)}
+                    />
+                  </td>
+                  <td>
+                    <CelluleEditable
+                      valeur={p.declaree}
+                      affichage={p.declaree === "oui" ? "Oui" : p.declaree === "non" ? "Non" : ""}
+                      suggestions={["oui", "non"]}
+                      ariaLabel="déclaré"
+                      onChange={(valeur) =>
+                        onModifierChamp(p.id, "declaree", normaliserDeclaration(valeur))
+                      }
                     />
                   </td>
                   <td className="cellule-large">

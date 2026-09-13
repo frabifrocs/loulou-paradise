@@ -12,6 +12,8 @@ export type Prestation = {
   prix_paye: string;
   mode_paiement: string;
   commentaire: string;
+  /** "oui", "non", ou vide pour les anciennes lignes. */
+  declaree: string;
   client_id: string;
   /** Champs recopiés depuis une autre fiche du même client. */
   complete_depuis_historique: string;

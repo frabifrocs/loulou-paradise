@@ -24,6 +24,7 @@ function normaliser(ligne: Partial<Prestation>, index: number): Prestation {
     prix_paye: ligne.prix_paye ?? "",
     mode_paiement: ligne.mode_paiement ?? "",
     commentaire: ligne.commentaire ?? "",
+    declaree: ligne.declaree === "oui" || ligne.declaree === "non" ? ligne.declaree : "",
     client_id: ligne.client_id ?? "",
     complete_depuis_historique: ligne.complete_depuis_historique ?? "",
     prix_brut: ligne.prix_brut ?? "",

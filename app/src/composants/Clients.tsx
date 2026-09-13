@@ -7,6 +7,7 @@ import {
   euros,
   montant,
   nomClient,
+  normaliserDeclaration,
   valeursDistinctes,
 } from "../utilitaires";
 import CelluleEditable from "./CelluleEditable";
@@ -151,6 +152,7 @@ export default function Clients({
                       <th>Prestation</th>
                       <th>Prix</th>
                       <th>Paiement</th>
+                      <th>Déclaré</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -203,6 +205,17 @@ export default function Clients({
                             suggestions={paiements}
                             ariaLabel="mode de paiement"
                             onChange={(valeur) => onModifierChamp(p.id, "mode_paiement", valeur)}
+                          />
+                        </td>
+                        <td>
+                          <CelluleEditable
+                            valeur={p.declaree}
+                            affichage={p.declaree === "oui" ? "Oui" : p.declaree === "non" ? "Non" : ""}
+                            suggestions={["oui", "non"]}
+                            ariaLabel="déclaré"
+                            onChange={(valeur) =>
+                              onModifierChamp(p.id, "declaree", normaliserDeclaration(valeur))
+                            }
                           />
                         </td>
                       </tr>
