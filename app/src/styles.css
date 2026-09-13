@@ -637,49 +637,6 @@ textarea:focus {
   transition: background 0.15s;
 }
 
-.ca-par-mois {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
-  gap: 8px;
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ca-par-mois button {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
-  min-height: 44px;
-  padding: 8px 10px;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  background: var(--fond);
-  border: 1px solid var(--bordure);
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.ca-par-mois button.actif,
-.ca-par-mois button:hover {
-  border-color: var(--accent);
-  background: var(--accent-clair);
-}
-
-.ca-par-mois strong {
-  color: var(--encre-douce);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.ca-par-mois span {
-  font-size: 13px;
-  font-weight: 650;
-}
-
 .barre-colonne:hover .barre,
 .barre-colonne.active .barre {
   background: var(--alerte);

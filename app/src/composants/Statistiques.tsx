@@ -2,8 +2,6 @@ import { useMemo, useState } from "react";
 import type { Prestation } from "../types";
 import { MOIS_FR, euros, montant } from "../utilitaires";
 
-const MOIS_COURT = ["jan", "fév", "mar", "avr", "mai", "juin", "juil", "aoû", "sep", "oct", "nov", "déc"];
-
 type Props = { prestations: Prestation[] };
 
 type CumulMois = {
@@ -66,7 +64,8 @@ export default function Statistiques({ prestations }: Props) {
   const maximumMensuel = Math.max(1, ...parMois.map(([, v]) => v.total));
   const total = parAnnee.reduce((somme, [, v]) => somme + v.total, 0);
   const nombre = parAnnee.reduce((somme, [, v]) => somme + v.nombre, 0);
-  const detail = moisActif ? parMois.find(([cle]) => cle === moisActif) : undefined;
+  const moisAffiche = moisActif ?? parMois[parMois.length - 1]?.[0] ?? null;
+  const detail = moisAffiche ? parMois.find(([cle]) => cle === moisAffiche) : undefined;
 
   return (
     <div className="statistiques">
@@ -99,9 +98,9 @@ export default function Statistiques({ prestations }: Props) {
               <button
                 key={cle}
                 type="button"
-                className={moisActif === cle ? "barre-colonne active" : "barre-colonne"}
-                onClick={() => setMoisActif(moisActif === cle ? null : cle)}
-                aria-pressed={moisActif === cle}
+                className={moisAffiche === cle ? "barre-colonne active" : "barre-colonne"}
+                onClick={() => setMoisActif(cle)}
+                aria-pressed={moisAffiche === cle}
                 aria-label={`${MOIS_FR[Number.parseInt(mois, 10) - 1]} ${annee}`}
               >
                 <span
@@ -113,25 +112,6 @@ export default function Statistiques({ prestations }: Props) {
             );
           })}
         </div>
-        <ul className="ca-par-mois">
-          {parMois.map(([cle, valeur]) => {
-            const [annee, mois] = cle.split("-");
-            return (
-              <li key={cle}>
-                <button
-                  type="button"
-                  className={moisActif === cle ? "actif" : undefined}
-                  onClick={() => setMoisActif(moisActif === cle ? null : cle)}
-                >
-                  <strong>
-                    {MOIS_COURT[Number.parseInt(mois, 10) - 1]} {annee.slice(2)}
-                  </strong>
-                  <span>{euros(valeur.total)}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
         {detail && (
           <dl className="detail-mois">
             <div>
